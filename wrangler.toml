@@ -1,0 +1,10 @@
+name = "wstun"
+main = "./src/index.js"
+routes = [
+  "wstun.rethinkdns.com/*",
+  "wstun.bravedns.com/*"
+]
+usage_model = "unbound"
+workers_dev = true
+compatibility_date = "2022-06-21"
+

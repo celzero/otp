@@ -1,0 +1,12 @@
+{
+  "name": "wstun",
+  "version": "0.0.0",
+  "devDependencies": {
+    "wrangler": "2.0.14"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish"
+  }
+}
