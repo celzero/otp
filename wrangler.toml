@@ -1,10 +1,21 @@
-name = "wstun"
+name = "lwe"
 main = "./src/index.js"
 routes = [
-  "wstun.rethinkdns.com/*",
-  "wstun.bravedns.com/*"
+  "lwe.rethinkdns.com/*",
+  "lwe.bravedns.com/*"
 ]
-usage_model = "unbound"
+usage_model = "bundled"
 workers_dev = true
 compatibility_date = "2022-06-21"
 
+[vars]
+
+
+##################
+#-----SECRETS----#
+##################
+# for documentation purposes only
+# developers.cloudflare.com/workers/platform/environment-variables/#adding-secrets-via-wrangler
+# [secrets]
+# LWE_SECRET_KEY_HMAC_A = ""
+# LWE_SECRET_KEY_HKDF_A = ""

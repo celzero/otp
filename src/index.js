@@ -1,66 +1,45 @@
-const cfdefault = {
-  asOrganization: "",
-  asn: 0,
-  colo: "",
-  country: "",
-}
-const xfwfor = "X-Forwarded-For";
-const cfcip = "CF-Connecting-IP";
-const noip = "0"
+import * as log from "./base/log.js";
+import * as res from "./base/res.js";
+import * as req from "./base/req.js";
+import * as magiclink from "./core/magic.js";
+import * as info from "./core/cinfo.js"
 
-async function handle(req) {
-  const url = req.url;
-
-  // developers.cloudflare.com/workers/runtime-apis/request
-  const cf = getcf(req);
-  const ips = getips(req);
-
-  return respond(cf.asOrganization, cf.city, cf.country, cf.colo, ips);
-}
-
-function respond(isp, city, nation, colo, proto, ips) {
-  const res = {
-    isp: isp,
-    ips: ips,
-    addr: city + ", " + nation,
-    proto: proto
-    dc: colo,
-  };
-  const json = JSON.stringify(res);
-  return new Response(json, {
-    headers: {
-      'content-type': 'application/json;charset=UTF-8',
-    },
-  })
-}
-
-// developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties
-function getcf(r) {
-  if (r == null || r.cf == null) {
-    return cfdefault;
-  }
-  return r.cf;
-}
-
-// developers.cloudflare.com/fundamentals/get-started/reference/http-request-headers
-function getips(r) {
-  if (r == null || r.headers == null) {
-    return noip;
-  }
-  const h = r.headers
-  if (h.has(xfwfor)) {
-    // csv: "ip1,ip2,ip3" where ip1 is the client, ip2/ip3 are the proxies
-    return h.get(xfwfor);
-  }
-  if (h.has(cfcip)) {
-    return h.get(cfcip);
-  }
-  return noip;
-}
+const PATH_MAGICLINK_GEN = "ml";
+const PATH_CLIENTINFO = "ci";
+const PATH_MAGICLINK_VERIFY = "v";
 
 export default {
-  async fetch(req, env, ctx) {
-    return handle(req);
-  },
+  async fetch(request, env, ctx) {
+    if (req.optionsRequest(request)) return util.res.w204();
+
+    // proto:hostname/path/to/file/
+    const url = new URL(request.url);
+    // ["", "path", "to", "file", ""]
+    const path = url.pathname.split("/");
+    if (path.length <= 1) {
+      // treat as health-check
+      return res.w200();
+    }
+
+    const w = path[1];
+    try {
+      if (w === PATH_MAGICLINK_GEN) {
+        // auth: send a magiclink
+        return magiclink.send(request, env, ctx);
+      } else if (w === PATH_MAGICLINK_VERIFY) {
+        // auth: verify a magiclink
+        return magiclink.recv(request, env, ctx);
+      } else if (w === PATH_CLIENTINFO) {
+        // info: send client info
+        return info.handle(request);
+      } else {
+        // err: no such method
+        return res.w404();
+      }
+    } catch (ex) {
+      log.e(request.url, ex)
+      return res.w529();
+    }
+  }
 }
 
