@@ -16,33 +16,36 @@ function relevel(x) {
         case debug:
         case info:
         case warn:
-        case error:            
+        case error:
             level = x;
+            break;
         default:
             level = defaultLevel;
+            break;
     }
+    console.log("log:relevel", level);
 }
 
 function d(...r) {
-    if (level >= debug) {
+    if (level <= debug) {
         console.log(...r);
     }
 }
 
 function i(...r) {
-    if (level >= info) {
+    if (level <= info) {
         console.log(...r);
     }
 }
 
 function w(...r) {
-    if (level >= warn) {
-        console.log(...r);
+    if (level <= warn) {
+        console.warn(...r);
     }
 }
 
 function e(...r) {
-    if (level >= error) {
-        console.log(...r);
+    if (level <= error) {
+        console.error(...r);
     }
 }
