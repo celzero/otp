@@ -1,9 +1,16 @@
-export function loginemail(urlparams, email, from) {
+export function loginemail(env, urlparams, email, from) {
   if (!urlparams || !email || !from) throw new Error("insufficient args");
   const emailAsURIComponent = encodeURIComponent(email);
   const half1 = email.substr(0, email.indexOf("@") + 1).replace("@", " [at] ");
   const half2 = email.substr(email.indexOf("@") + 1, email.length).replaceAll(".", " [dot] ");
   const greet = half1+half2
+  const landingurl = env.LANDING;
+  const lweurl = env.LWE_PATH;
+  const nameplate = env.NAMEPLATE;
+  const tagline = env.TAGLINE;
+  const loginpage = env.LOGINPAGE;
+  // min is at least 1m (but not accounted for here)
+  const valid = env.MAGICLINK_VALIDITY_MINS;
   return `
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
   <html dir="ltr"
@@ -54,21 +61,21 @@ export function loginemail(urlparams, email, from) {
                       </h1>
                       <p style="color:inherit;">For ${greet},</p>
                       <p style="margin:20px 0; font-size:1.2rem;">
-                      <a  style="display:inline-block; padding:16px 16px;border:1px solid #EEEEEE;background-color:#F4F4F8;border-radius:10px;margin:24px 0;" class="rdns-email-button-hover" href="https://lwe.rethinkdns.com/?${urlparams}">
+                      <a  style="display:inline-block; padding:16px 16px;border:1px solid #EEEEEE;background-color:#F4F4F8;border-radius:10px;margin:24px 0;" class="rdns-email-button-hover" href="${lweurl}?${urlparams}">
                           Click here to login with magic link
                       </a>
                       </p>
                       <div style="color:#666;margin-top:12px">If you did not try to login, you can safely ignore this email.</div>
                       <div style="color:#AAAAAA;margin-top:12px"> 
-                          Magic links expire in 30 minutes. <a style="color:inherit" href="https://rethinkdns.com/login?m=ml&e=${emailAsURIComponent}">Click here to generate a new one</a>.
+                          Magic links expire in ${valid} minutes. <a style="color:inherit" href="${loginpage}?m=ml&e=${emailAsURIComponent}">Click here to generate a new one</a>.
                           <div style="margin-top:12px">
                               Requested by ${from}.
                           </div>
                       </div>
                       <div style="font-size:12px;margin-top:32px;margin-bottom:42px;color:#888">
                           <div>
-                              <a href="https://www.rethinkdns.com/" style="color:inherit">Rethink DNS + Firewall</a>
-                              <br/>Security & privacy for your Android devices.
+                              <a href="${landingurl}" style="color:inherit">${nameplate}</a>
+                              <br/>${tagline}
                           </div>
                       </div>
                   </div>

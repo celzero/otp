@@ -1,15 +1,43 @@
-name = "lwe"
+name = "lwe-dev"
 main = "./src/index.js"
-routes = [
-  "lwe.rethinkdns.com/*",
-  "lwe.bravedns.com/*"
-]
 usage_model = "bundled"
 workers_dev = true
 compatibility_date = "2022-06-21"
 
 [vars]
+NAMEPLATE = "Rethink DNS + Firewall"
+TAGLINE = "Security & privacy for your Android devices."
+LWE_PATH = "https://lwe-dev.local/"
+LANDING = "https://rethinkdns.local/"
+LOGINPAGE = "https://rethinkdns.local/login/"
+SENDER = "Rethink <login@rethinkdns.com>"
+MAGICLINK_VALIDITY_MINS = 5
+ACTUALLY_SEND_EMAILS = false
 
+##################
+#------PROD------#
+##################
+# wrangler doesn't yet support Workers Services and the new "Environments"
+# github.com/cloudflare/cloudflare-docs/pull/3175/files
+# github.com/cloudflare/wrangler2/issues/27
+# developers.cloudflare.com/workers/platform/environments
+[env.prod]
+name = "lwe"
+routes = [
+  "lwe.rethinkdns.com/*",
+  "lwe.bravedns.com/*",
+]
+
+[env.prod.vars]
+NAMEPLATE = "Rethink DNS + Firewall"
+TAGLINE = "Security & privacy for your Android devices."
+# LWE_PATH must be same as routes defined above
+LWE_PATH = "https://lwe.rethinkdns.com/"
+LANDING = "https://www.rethinkdns.com/"
+LOGINPAGE = "https://rethinkdns.com/login/"
+SENDER = "Rethink <login@rethinkdns.com>"
+MAGICLINK_VALIDITY_MINS = 5
+ACTUALLY_SEND_EMAILS = true
 
 ##################
 #-----SECRETS----#
@@ -17,5 +45,5 @@ compatibility_date = "2022-06-21"
 # for documentation purposes only
 # developers.cloudflare.com/workers/platform/environment-variables/#adding-secrets-via-wrangler
 # [secrets]
-# LWE_SECRET_KEY_HMAC_A = ""
-# LWE_SECRET_KEY_HKDF_A = ""
+# LWE_SECRET_KEY_MAC_A = ""
+# LWE_SECRET_KEY_AES_A = ""
