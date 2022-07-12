@@ -25,13 +25,13 @@ export default {
     try {
       if (w === PATH_MAGICLINK_GEN) {
         // auth: send a magiclink
-        return magiclink.send(request, env, ctx);
+        return await magiclink.send(request, env, ctx);
       } else if (w === PATH_MAGICLINK_VERIFY) {
         // auth: verify a magiclink
-        return magiclink.recv(request, env, ctx);
+        return await magiclink.recv(request, env, ctx);
       } else if (w === PATH_CLIENTINFO) {
         // info: send client info
-        return info.handle(request);
+        return await info.handle(request);
       } else {
         // err: no such method
         return res.w404();

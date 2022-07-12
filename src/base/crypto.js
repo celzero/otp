@@ -1,10 +1,10 @@
 import * as buf from "./buf.js";
 
-export {hkdfaes, hkdfhmac, aes, rand, ctx};
+export {hkdfaes, hkdfhmac, aes128, rand, ctx};
 
 // ref: gist.github.com/geekman/f9735602f744ebe5fa812f8ba17518c4
-async function hkdf(env) {
-    const sk = buf.fromStr(env.LWE_SECRET_KEY_HKDF_A);
+async function hkdf(seed) {
+    const sk = buf.fromStr(seed);
     return await crypto.subtle.importKey(
       'raw',
       sk,
@@ -14,8 +14,8 @@ async function hkdf(env) {
     );
 }
 
-async function dangeroushmac(env) {
-    const sk = buf.fromStr(env.LWE_SECRET_KEY_HMAC_A);
+async function dangeroushmac(seed) {
+    const sk = buf.fromStr(seed);
     return await crypto.subtle.importKey(
       'raw',
       sk,
@@ -26,8 +26,8 @@ async function dangeroushmac(env) {
 }
 
 // salt for hkdf may be zero: stackoverflow.com/a/64403302
-async function hkdfhmac(env, usectx, salt = new Uint8Array()) {
-    const dk = await hkdf(env);
+async function hkdfhmac(skmac, usectx, salt = new Uint8Array()) {
+    const dk = await hkdf(skmac);
     return await crypto.subtle.deriveKey(
         {name:'HKDF', hash:'SHA-256', salt: salt, info: usectx},
         dk,
@@ -37,8 +37,8 @@ async function hkdfhmac(env, usectx, salt = new Uint8Array()) {
     );
 }
 
-async function hkdfaes(env, usectx, salt = new Uint8Array()) {
-    const dk = await hkdf(env);
+async function hkdfaes(skaes, usectx, salt = new Uint8Array()) {
+    const dk = await hkdf(skaes);
     return await crypto.subtle.deriveKey(
         {name:'HKDF', hash:'SHA-256', salt: salt, info: usectx},
         dk,
@@ -48,7 +48,7 @@ async function hkdfaes(env, usectx, salt = new Uint8Array()) {
     );
 }
 
-function aes(iv, ad) {
+function aes128(iv, ad) {
     return {name:'AES-GCM', iv: iv, additionalData: ad};
 }
 

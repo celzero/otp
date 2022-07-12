@@ -5,8 +5,7 @@ import * as res from "../base/res.js";
 import * as req from "../base/req.js";
 
 const MAILCHANNEL = "https://api.mailchannels.net/tx/v1/send";
-const MAGICLINK_VALIDITY_MS = 30 * 60 * 60 * 1000; // 30m
-const actuallySendMail = true; // debug: false
+const actuallySendEmails = true; // debug: false
 
 export {send, recv};
 
@@ -54,10 +53,19 @@ function validemail(id) {
     if (!validemail(mailwho)) {
       return res.w504();
     }
+    // ex: "Jon Snow <king@north.tld>"
+    const sender = env.SENDER.split("<");
+    // "Jon Snow " => "Jon Snow"
+    const namefrom = sender[0].trim();
+    // "king@north.tld>" => "king@north.tld"
+    const mailfrom = sender[1].slice(0, -1);
+    if (!validemail(mailfrom)) {
+        return res.w504();
+    }
   
-    const searchparams = await gen.magiclink(env, mailwho, req.infoStr(request), MAGICLINK_VALIDITY_MS);
-  
-    log.d(mailwho, "gen magiclink", searchparams);
+    const searchparams = await gen.magiclink(env, mailwho, req.infoStr(request));
+    const additionalInfo = req.infoStrWithDate(request);
+    log.d(mailwho, "gen magiclink", searchparams, "with", additionalInfo);
   
     const mailreq = new Request(MAILCHANNEL, {
       method: 'POST',
@@ -69,20 +77,20 @@ function validemail(id) {
           },
         ],
         from: {
-          email: 'login@rethinkdns.com',
-          name: 'Rethink',
+          email: mailfrom,
+          name: namefrom,
         },
         subject: 'Your login code is...',
         content: [
           {
             type: 'text/html',
-            value: m.loginemail(searchparams, mailwho, req.infoStrWithDate(request)),
+            value: m.loginemail(env, searchparams, mailwho, additionalInfo),
           },
         ],
       }),
     });
 
-    if (actuallySendMail) {
+    if (actuallySendEmails && env.ACTUALLY_SEND_EMAILS) {
         const r = await fetch(mailreq);
         if (r.ok) return res.w302("signup");
         else return res.w302("tryagain");
