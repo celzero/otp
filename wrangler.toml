@@ -12,6 +12,7 @@ LANDING = "https://rethinkdns.local/"
 LOGINPAGE = "https://rethinkdns.local/login/"
 SENDER = "Rethink <login@rethinkdns.com>"
 MAGICLINK_VALIDITY_MINS = 5
+DEBUG = true
 ACTUALLY_SEND_EMAILS = false
 
 ##################
@@ -29,6 +30,8 @@ routes = [
 ]
 
 [env.prod.vars]
+DEBUG = false
+ACTUALLY_SEND_EMAILS = true
 NAMEPLATE = "Rethink DNS + Firewall"
 TAGLINE = "Security & privacy for your Android devices."
 # LWE_PATH must be same as routes defined above
@@ -36,8 +39,7 @@ LWE_PATH = "https://lwe.rethinkdns.com/"
 LANDING = "https://www.rethinkdns.com/"
 LOGINPAGE = "https://rethinkdns.com/login/"
 SENDER = "Rethink <login@rethinkdns.com>"
-MAGICLINK_VALIDITY_MINS = 5
-ACTUALLY_SEND_EMAILS = true
+MAGICLINK_VALIDITY_MINS = 2
 
 ##################
 #-----SECRETS----#

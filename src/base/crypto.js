@@ -1,10 +1,9 @@
 import * as buf from "./buf.js";
 
-export {hkdfaes, hkdfhmac, aes128, rand, ctx};
+export {hkdfaes, hkdfhmac, hkdfhotp, aes128, rand, ctx};
 
 // ref: gist.github.com/geekman/f9735602f744ebe5fa812f8ba17518c4
-async function hkdf(seed) {
-    const sk = buf.fromStr(seed);
+async function hkdf(sk) {
     return await crypto.subtle.importKey(
       'raw',
       sk,
@@ -14,12 +13,11 @@ async function hkdf(seed) {
     );
 }
 
-async function dangeroushmac(seed) {
-    const sk = buf.fromStr(seed);
+async function dangeroushmac(sk) {
     return await crypto.subtle.importKey(
       'raw',
       sk,
-      { name: 'HMAC', hash: 'SHA-256' },
+      hmac256opts(),
       false, // extractable? can be true for sign, verify
       ['sign', 'verify'], // usage
     );
@@ -29,9 +27,9 @@ async function dangeroushmac(seed) {
 async function hkdfhmac(skmac, usectx, salt = new Uint8Array()) {
     const dk = await hkdf(skmac);
     return await crypto.subtle.deriveKey(
-        {name:'HKDF', hash:'SHA-256', salt: salt, info: usectx},
+        hkdf256(salt, usectx),
         dk,
-        {name:'HMAC', hash:'SHA-256'},
+        hmac256opts(),
         false, // extractable? can be true for sign, verify
         ['sign', 'verify'], // usage
     );
@@ -40,16 +38,43 @@ async function hkdfhmac(skmac, usectx, salt = new Uint8Array()) {
 async function hkdfaes(skaes, usectx, salt = new Uint8Array()) {
     const dk = await hkdf(skaes);
     return await crypto.subtle.deriveKey(
-        {name:'HKDF', hash:'SHA-256', salt: salt, info: usectx},
+        hkdf256(salt, usectx),
         dk,
-        {name:'AES-GCM', length: 128},
+        aes128opts(),
         false, // extractable? can be true for encrypt, decrypt
         ['encrypt', 'decrypt'], // usage
     );
 }
 
+async function hkdfhotp(skotp, usectx, salt = new Uint8Array()) {
+    const dk = await hkdf(skotp);
+    return await crypto.subtle.deriveKey(
+        hkdf256(salt, usectx),
+        dk,
+        hmacsha1opts(),
+        false,
+        ['sign', 'verify'],
+    );
+}
+
 function aes128(iv, ad) {
     return {name:'AES-GCM', iv: iv, additionalData: ad};
+}
+
+function aes128opts() {
+    return {name:'AES-GCM', length: 128};
+}
+
+function hmac256opts() {
+    return {name:'HMAC', hash:'SHA-256'};
+}
+
+function hmacsha1opts() {
+    return {name:'HMAC', hash:'SHA-1'};
+}
+
+function hkdf256(salt, usectx) {
+    return {name:'HKDF', hash:'SHA-256', salt: salt, info: usectx};
 }
 
 async function rand(bytes = 16) {

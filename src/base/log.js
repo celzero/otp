@@ -28,7 +28,7 @@ function relevel(x) {
 
 function d(...r) {
     if (level <= debug) {
-        console.log(...r);
+        console.debug(...r);
     }
 }
 

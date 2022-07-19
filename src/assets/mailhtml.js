@@ -1,5 +1,5 @@
-export function loginemail(env, urlparams, email, from) {
-  if (!urlparams || !email || !from) throw new Error("insufficient args");
+export function loginemail(env, urlparams, otp, email, from) {
+  if (!urlparams || !email || !from || !otp) throw new Error("insufficient args");
   const emailAsURIComponent = encodeURIComponent(email);
   const half1 = email.substr(0, email.indexOf("@") + 1).replace("@", " [at] ");
   const half2 = email.substr(email.indexOf("@") + 1, email.length).replaceAll(".", " [dot] ");
@@ -60,14 +60,18 @@ export function loginemail(env, urlparams, email, from) {
                           Login
                       </h1>
                       <p style="color:inherit;">For ${greet},</p>
-                      <p style="margin:20px 0; font-size:1.2rem;">
-                      <a  style="display:inline-block; padding:16px 16px;border:1px solid #EEEEEE;background-color:#F4F4F8;border-radius:10px;margin:24px 0;" class="rdns-email-button-hover" href="${lweurl}?${urlparams}">
-                          Click here to login with magic link
+                      <a href="${lweurl}?${urlparams}">
+                        Click here to login with magic link
                       </a>
+                      <p style="color:inherit;">Or enter this magic code:</p>
+                      <p style="margin:20px 0; font-size:1.2rem;">
+                        <span style="display:inline-block; padding:16px 16px;border:1px solid #EEEEEE;background-color:#F4F4F8;border-radius:10px;margin:24px 0;" class="rdns-email-button-hover">
+                          ${otp}
+                        </span>
                       </p>
                       <div style="color:#666;margin-top:12px">If you did not try to login, you can safely ignore this email.</div>
                       <div style="color:#AAAAAA;margin-top:12px"> 
-                          Magic links expire in ${valid} minutes. <a style="color:inherit" href="${loginpage}?m=ml&e=${emailAsURIComponent}">Click here to generate a new one</a>.
+                          Magic codes expire in ${valid} minutes. <a style="color:inherit" href="${loginpage}?m=ml&e=${emailAsURIComponent}">Click here to generate a new one</a>.
                           <div style="margin-top:12px">
                               Requested by ${from}.
                           </div>

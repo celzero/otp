@@ -1,5 +1,5 @@
 
-export {asB64, fromB64, fromStr, asStr, cat, toBytes, eq};
+export {fromArr, asB64, fromB64, fromStr, asStr, cat, toBytes, eq};
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -31,6 +31,9 @@ function toBytes(b) {
     return new Uint8Array(b);
 }
 
+// two different base64 results can decode to the same output
+// atob(YhNuurkXdz0m7R6ulLfAeZ) === atob(YhNuurkXdz0m7R6ulLfAeQ)
+// stackoverflow.com/a/18850559
 function asB64(ab) {
     return base64Url(btoa(uint8ArrayToByteString(ab)));
 }
@@ -45,6 +48,10 @@ function fromStr(s) {
 
 function asStr(ab) {
     return decoder.decode(ab);
+}
+
+function fromArr(intarr) {
+    return Uint8Array.from(intarr);
 }
 
 function cat(...bs) {

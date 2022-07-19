@@ -1,6 +1,6 @@
 
-export {info, infoStrWithDate, infoStr, nowstr};
-export {optionsRequest};
+export {info, infoStrWithDate, infoStr, originStr, nowstr};
+export {optionsRequest, getOrPostRequest};
 
 const xfwfor = "X-Forwarded-For";
 const cfcip = "CF-Connecting-IP";
@@ -18,21 +18,27 @@ const cfdefault = {
     const ips = getips(req);
     return assoc(cf.asOrganization, cf.city, cf.country, cf.colo, cf.proto, ips);
   }
-  
+
   function infoStrWithDate(req) {
     return infoStr(req) + "; " + nowstr();
   }
-  
+
   function infoStr(req) {
     const f = info(req);
     return f.ips + " (" + f.addr + ")";
   }
-  
+
+  // proto:host.tld/path?query=param#hash -> proto:host.tld
+  function originStr(url) {
+    if (!url || !url.origin) return "";
+    return url.origin;
+  }
+
   function nowstr() {
     const d = new Date();
     return "on " + d.getUTCFullYear() + "/"+ d.getUTCMonth() + "/" + d.getUTCDate() + " at " + d.getUTCHours() + ":" + d.getUTCMinutes() + " (GMT)";
   }
-  
+
   function assoc(isp, city, nation, colo, proto, ips) {
     return {
       isp: isp,
@@ -42,7 +48,7 @@ const cfdefault = {
       dc: colo,
     };
   }
-  
+
   // developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties
   function getcf(r) {
     if (r == null || r.cf == null) {
@@ -50,7 +56,7 @@ const cfdefault = {
     }
     return r.cf;
   }
-  
+
   // developers.cloudflare.com/fundamentals/get-started/reference/http-request-headers
   function getips(r) {
     if (r == null || r.headers == null) {
@@ -67,7 +73,11 @@ const cfdefault = {
     return noip;
   }
 
-    
+
   function optionsRequest(request) {
     return request.method === "OPTIONS";
+  }
+
+  function getOrPostRequest(request) {
+    return request.method === "GET" || request.method === "POST";
   }
