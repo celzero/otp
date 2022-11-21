@@ -5,7 +5,7 @@ import * as res from "../base/res.js";
 import * as req from "../base/req.js";
 import * as buf from "../base/buf.js";
 
-const MAILCHANNEL = "https://api.mailchannels.net/tx/v1/send";
+const MAILCHANNELS = "https://api.mailchannels.net/tx/v1/send";
 
 export {send, recvlink, recvcode};
 
@@ -102,15 +102,11 @@ async function recvcode(request, env, ctx) {
 
     log.d(mailwho, "mc", otp, "ml", searchparams, "with", additionalInfo, "as", token);
 
-    const mailreq = new Request(MAILCHANNEL, {
+    const mailreq = new Request(MAILCHANNELS, {
       method: 'POST',
       headers: res.jsonHeaders(),
       body: JSON.stringify({
-        personalizations: [
-          {
-            to: [{ email: mailwho, name: '' }],
-          },
-        ],
+        personalizations: [mailto(env, mailwho, mailfrom)],
         from: {
           email: mailfrom,
           name: namefrom,
@@ -133,6 +129,38 @@ async function recvcode(request, env, ctx) {
     } else {
         return res.w302("signup");
     }
+  }
+
+  function mailto(env, toaddr, fromaddr) {
+    const pk = dkimPk(env);
+    // mailchannels.zendesk.com/hc/en-us/articles/7122849237389
+    return pk != null
+      ? {
+          to: [{ email: toaddr, name: '' }],
+          dkim_domain: hostname(fromaddr),
+          dkim_selector: dkimSelector(env),
+          dkim_private_key: pk,
+        }
+      : {
+        to: [{ email: toaddr, name: '' }],
+        };
+  }
+
+  function dkimPk(env) {
+    return env.DKIM_PK_MC_RDNS || null;
+  }
+
+  function dkimSelector(env) {
+    return env.DKIM_SELECTOR || "mc";
+  }
+
+  // extract hostname from email address
+  function hostname(emailId) {
+    const parts = emailId.split("@");
+    if (parts.length < 2) {
+      throw new Error("invalid email id");
+    }
+    return parts[1];
   }
 
   function paramsToToken(p) {
