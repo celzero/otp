@@ -2,7 +2,7 @@ import * as log from "./base/log.js";
 import * as res from "./base/res.js";
 import * as req from "./base/req.js";
 import * as magiclink from "./core/magic.js";
-import * as info from "./core/cinfo.js"
+import * as info from "./core/cinfo.js";
 
 const PATH_MAGICLINK_GEN = "ml";
 const PATH_CLIENTINFO = "ci";
@@ -17,11 +17,13 @@ export default {
     if (!req.getOrPostRequest(request)) return res.w204();
 
     if (env.DEBUG) {
-        log.relevel(log.debug);
-        // btoa("b64url-test-aes-key-a") -> YjY0dXJsLXRlc3QtYWVzLWtleS1h
-        env.LWE_SECRET_KEY_AES_A = env.LWE_SECRET_KEY_AES_A || "YjY0dXJsLXRlc3QtYWVzLWtleS1h";
-        // btoa("mac-key-a-test-b64url") -> bWFjLWtleS1hLXRlc3QtYjY0dXJs
-        env.LWE_SECRET_KEY_MAC_A = env.LWE_SECRET_KEY_MAC_A || "bWFjLWtleS1hLXRlc3QtYjY0dXJs";
+      log.relevel(log.debug);
+      // btoa("b64url-test-aes-key-a") -> YjY0dXJsLXRlc3QtYWVzLWtleS1h
+      env.LWE_SECRET_KEY_AES_A =
+        env.LWE_SECRET_KEY_AES_A || "YjY0dXJsLXRlc3QtYWVzLWtleS1h";
+      // btoa("mac-key-a-test-b64url") -> bWFjLWtleS1hLXRlc3QtYjY0dXJs
+      env.LWE_SECRET_KEY_MAC_A =
+        env.LWE_SECRET_KEY_MAC_A || "bWFjLWtleS1hLXRlc3QtYjY0dXJs";
     }
 
     // proto:hostname/path/to/file/
@@ -52,9 +54,8 @@ export default {
         return res.w404();
       }
     } catch (ex) {
-      log.e(request.url, ex)
+      log.e(request.url, ex);
       return res.w529();
     }
-  }
-}
-
+  },
+};

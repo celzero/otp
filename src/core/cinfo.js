@@ -1,11 +1,9 @@
-
 import * as req from "../base/req.js";
 import * as res from "../base/res.js";
 
-export {handle};
+export { handle };
 
-async function handle(req) {
-    const f = req.info(req);
-    return new res.json(f);
-  }
-  
+async function handle(request) {
+  const f = req.info(request);
+  return res.json(f);
+}

@@ -1,9 +1,13 @@
 export function loginemail(env, urlparams, otp, email, from) {
-  if (!urlparams || !email || !from || !otp) throw new Error("insufficient args");
+  if (!urlparams || !email || !from || !otp) {
+    throw new Error("insufficient args");
+  }
   const emailAsURIComponent = encodeURIComponent(email);
   const half1 = email.substr(0, email.indexOf("@") + 1).replace("@", " [at] ");
-  const half2 = email.substr(email.indexOf("@") + 1, email.length).replaceAll(".", " [dot] ");
-  const greet = half1+half2
+  const half2 = email
+    .substr(email.indexOf("@") + 1, email.length)
+    .replaceAll(".", " [dot] ");
+  const greet = half1 + half2;
   const landingurl = env.LANDING;
   const lweurl = env.LWE_PATH;
   const nameplate = env.NAMEPLATE;
@@ -88,5 +92,5 @@ export function loginemail(env, urlparams, otp, email, from) {
          </table>
       </body>
   </html>
-  `
+  `;
 }

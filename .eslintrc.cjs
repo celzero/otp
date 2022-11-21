@@ -37,7 +37,14 @@ module.exports = {
     "valid-jsdoc": 0,
     "quotes": ["error", "double", { allowTemplateLiterals: true }],
     "no-unused-vars": "warn",
-    "new-cap": ["error", { "properties": false }],
+    "new-cap": ["error", { properties: false }],
+    "max-len": ["error", {
+      code: 120,
+      ignoreComments: true,
+      ignoreUrls: true,
+      ignoreStrings: true,
+      ignoreTemplateLiterals: true,
+    }],
 
     // Enforces rules from .prettierrc file.
     // These should be fixed automatically with formatting.
