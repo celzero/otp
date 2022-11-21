@@ -1,6 +1,7 @@
 {
-  "name": "wstun",
+  "name": "lwe",
   "version": "0.0.0",
+  "type": "module",
   "devDependencies": {
     "wrangler": "2.0.14"
   },
