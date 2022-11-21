@@ -5,7 +5,9 @@ import * as res from "../base/res.js";
 import * as req from "../base/req.js";
 import * as buf from "../base/buf.js";
 
+// api.mailchannels.net/tx/v1/documentation
 const MAILCHANNELS = "https://api.mailchannels.net/tx/v1/send";
+const MAILCHANNELS_DRYRUN = MAILCHANNELS + "?dry-run=true";
 
 export { send, recvlink, recvcode };
 
@@ -111,7 +113,8 @@ async function send(request, env, ctx) {
     token
   );
 
-  const mailreq = new Request(MAILCHANNELS, {
+  const u = env.ACTUALLY_SEND_EMAILS ? MAILCHANNELS : MAILCHANNELS_DRYRUN;
+  const mailreq = new Request(u, {
     method: "POST",
     headers: res.jsonHeaders(),
     body: JSON.stringify({
@@ -130,14 +133,17 @@ async function send(request, env, ctx) {
     }),
   });
 
-  if (env.ACTUALLY_SEND_EMAILS) {
-    // redirect with a link with salt to validate magiccode
-    const r = await fetch(mailreq);
-    if (r.ok) return res.w302("signup");
-    else return res.w302("tryagain");
-  } else {
-    return res.w302("signup");
+  // todo: redirect to a link + salt to later validate magiccode
+  const r = await fetch(mailreq);
+  try {
+    const j = await r.json();
+    if (j && j.errors) log.e(j.errors);
+    if (j && j.data) log.d(j.data);
+  } catch (e) {
+    log.e(e);
   }
+  if (r.ok) return res.w302("signup");
+  else return res.w302("tryagain");
 }
 
 function mailto(env, toaddr, fromaddr) {
@@ -155,8 +161,9 @@ function mailto(env, toaddr, fromaddr) {
       };
 }
 
+// developers.cloudflare.com/pages/platform/functions/plugins/mailchannels/#generate-dkim-credentials
 function dkimPk(env) {
-  return env.DKIM_PK_MC_RDNS || null;
+  return env.DKIM_B64_PK_PEM || null;
 }
 
 function dkimSelector(env) {
