@@ -10,13 +10,14 @@ const cfdefault = {
     asn: 0,
     colo: "",
     country: "",
+    httpProtocol: "",
   }
 
   // developers.cloudflare.com/workers/runtime-apis/request
   function info(req) {
     const cf = getcf(req);
     const ips = getips(req);
-    return assoc(cf.asOrganization, cf.city, cf.country, cf.colo, cf.proto, ips);
+    return assoc(cf.asOrganization, cf.city, cf.country, cf.colo, cf.httpProtocol, ips);
   }
 
   function infoStrWithDate(req) {
